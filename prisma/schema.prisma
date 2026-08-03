@@ -10,7 +10,7 @@ model User {
   id            Int       @id @default(autoincrement())
   username      String    @unique @db.VarChar(50)
   email         String    @unique @db.VarChar(255)
-  passwordHash  String    @map("password_hash") @db.VarChar(255)
+  passwordHash  String?   @map("password_hash") @db.VarChar(255)
   role          String    @default("Employee") @db.VarChar(50)
   status        String    @default("Active") @db.VarChar(20)
   createdAt     DateTime  @default(now()) @map("created_at")
@@ -35,8 +35,40 @@ model Company {
   createdAt         DateTime       @default(now()) @map("created_at")
   updatedAt         DateTime       @updatedAt @map("updated_at")
   mediaLibrary      MediaLibrary[]
+  websites          Website[]
+  departments       Department[]
+  employees         Employee[]
+  assets            Asset[]
+  projects          Project[]
+  complianceRecords ComplianceRecord[]
 
   @@map("companies")
+}
+
+model LeadershipProfile {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  designation String   @db.VarChar(100)
+  biography   String?  @db.Text
+  photoUrl    String?  @map("photo_url") @db.VarChar(500)
+  status      String   @default("Active") @db.VarChar(20)
+  displayOrder Int     @default(0) @map("display_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("leadership_profiles")
+}
+
+model OtpVerification {
+  id        Int      @id @default(autoincrement())
+  email     String   @db.VarChar(255)
+  otp       String   @db.VarChar(10)
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([email], map: "idx_otp_email")
+  @@map("otp_verifications")
 }
 
 model MediaLibrary {
@@ -98,4 +130,257 @@ model Session {
   @@index([userId], map: "idx_sessions_user")
   @@index([lastActivity], map: "idx_sessions_last_activity")
   @@map("sessions")
+}
+
+model Website {
+  id           Int      @id @default(autoincrement())
+  companyId    Int      @map("company_id")
+  template     String   @default("corporate") @db.VarChar(50)
+  status       String   @default("Draft") @db.VarChar(20)
+  themeSettings Json?   @map("theme_settings")
+  navigation   Json?
+  domain       String?  @db.VarChar(255)
+  subdomain    String?  @db.VarChar(100)
+  analytics    Json?
+  publishedAt  DateTime? @map("published_at")
+  archivedAt   DateTime? @map("archived_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  pages      Page[]
+
+  @@index([companyId], map: "idx_websites_company")
+  @@index([status], map: "idx_websites_status")
+  @@map("websites")
+}
+
+model Page {
+  id           Int      @id @default(autoincrement())
+  websiteId    Int      @map("website_id")
+  companyId    Int      @map("company_id")
+  pageName     String   @map("page_name") @db.VarChar(100)
+  pageSlug     String   @map("page_slug") @db.VarChar(100)
+  pageContent  String?  @map("page_content") @db.Text
+  pageStatus   String   @default("Draft") @map("page_status") @db.VarChar(20)
+  metaTitle    String?  @map("meta_title") @db.VarChar(255)
+  metaDescription String? @map("meta_description") @db.Text
+  sortOrder    Int      @default(0) @map("sort_order")
+  isRequired   Boolean  @default(false) @map("is_required")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@index([websiteId], map: "idx_pages_website")
+  @@index([companyId], map: "idx_pages_company")
+  @@map("pages")
+}
+
+model Department {
+  id          Int      @id @default(autoincrement())
+  companyId   Int      @map("company_id")
+  departmentName String @map("department_name") @db.VarChar(100)
+  departmentCode String @map("department_code") @db.VarChar(20)
+  description String?
+  headId      Int?
+  status      String   @default("Active") @db.VarChar(20)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  employees  Employee[]
+
+  @@index([companyId], map: "idx_dept_company")
+  @@map("departments")
+}
+
+model Employee {
+  id           Int      @id @default(autoincrement())
+  employeeId   String   @unique @map("employee_id") @db.VarChar(50)
+  companyId    Int      @map("company_id")
+  departmentId Int?     @map("department_id")
+  fullName     String   @map("full_name") @db.VarChar(100)
+  email        String   @db.VarChar(255)
+  phone        String?  @db.VarChar(20)
+  designation  String   @db.VarChar(100)
+  managerId    Int?     @map("manager_id")
+  role         String   @default("Employee") @db.VarChar(50)
+  status       String   @default("Active") @db.VarChar(20)
+  joiningDate  DateTime? @map("joining_date")
+  avatar       String?  @db.VarChar(500)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  company    Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  department Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  @@index([companyId], map: "idx_emp_company")
+  @@index([departmentId], map: "idx_emp_department")
+  @@map("employees")
+}
+
+model Approval {
+  id           Int      @id @default(autoincrement())
+  companyId    Int?     @map("company_id")
+  employeeId   Int?     @map("employee_id")
+  approvalType String   @map("approval_type") @db.VarChar(50)
+  status       String   @default("Pending") @db.VarChar(20)
+  requestedBy  Int      @map("requested_by")
+  reviewedBy   Int?     @map("reviewed_by")
+  reviewNotes  String?  @map("review_notes") @db.Text
+  reviewedAt   DateTime? @map("reviewed_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([companyId], map: "idx_approval_company")
+  @@index([status], map: "idx_approval_status")
+  @@map("approvals")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int?     @map("user_id")
+  companyId Int?     @map("company_id")
+  type      String   @db.VarChar(50)
+  title     String   @db.VarChar(255)
+  message   String   @db.Text
+  channel   String   @default("Dashboard") @db.VarChar(50)
+  isRead    Boolean  @default(false) @map("is_read")
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId], map: "idx_notif_user")
+  @@index([isRead], map: "idx_notif_read")
+  @@map("notifications")
+}
+
+model Report {
+  id           Int      @id @default(autoincrement())
+  companyId    Int?     @map("company_id")
+  reportType   String   @map("report_type") @db.VarChar(50)
+  reportName   String   @map("report_name") @db.VarChar(255)
+  reportFormat String   @default("PDF") @map("report_format") @db.VarChar(20)
+  filters      Json?
+  generatedBy  Int      @map("generated_by")
+  filePath     String?  @map("file_path") @db.VarChar(500)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([companyId], map: "idx_report_company")
+  @@map("reports")
+}
+
+model Asset {
+  id           Int      @id @default(autoincrement())
+  companyId    Int      @map("company_id")
+  assetName    String   @map("asset_name") @db.VarChar(200)
+  assetType    String   @map("asset_type") @db.VarChar(50)
+  serialNumber String?  @map("serial_number") @db.VarChar(100)
+  value        Decimal  @default(0) @db.Decimal(15,2)
+  assignedTo   Int?     @map("assigned_to")
+  status       String   @default("Available") @db.VarChar(20)
+  purchaseDate DateTime? @map("purchase_date")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId], map: "idx_asset_company")
+  @@map("assets")
+}
+
+model Document {
+  id           Int      @id @default(autoincrement())
+  companyId    Int?     @map("company_id")
+  documentName String   @map("document_name") @db.VarChar(255)
+  documentType String   @map("document_type") @db.VarChar(50)
+  fileUrl      String?  @map("file_url") @db.VarChar(500)
+  description  String?  @db.Text
+  expiryDate   DateTime? @map("expiry_date")
+  createdBy    Int      @map("created_by")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([companyId], map: "idx_doc_company")
+  @@map("documents")
+}
+
+model ComplianceRecord {
+  id                Int      @id @default(autoincrement())
+  companyId         Int      @map("company_id")
+  complianceType    String   @map("compliance_type") @db.VarChar(50)
+  title             String   @db.VarChar(255)
+  issuingAuthority  String?  @map("issuing_authority") @db.VarChar(255)
+  issueDate         DateTime? @map("issue_date")
+  expiryDate        DateTime @map("expiry_date")
+  status            String   @default("Active") @db.VarChar(20)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId], map: "idx_compliance_company")
+  @@map("compliance_records")
+}
+
+model AiInsight {
+  id             Int      @id @default(autoincrement())
+  companyId      Int?     @map("company_id")
+  insightType    String   @map("insight_type") @db.VarChar(50)
+  title          String   @db.VarChar(255)
+  description    String   @db.Text
+  confidenceScore Decimal @default(0) @map("confidence_score") @db.Decimal(5,2)
+  isRead         Boolean  @default(false) @map("is_read")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([companyId], map: "idx_ai_company")
+  @@map("ai_insights")
+}
+
+model SearchIndex {
+  id          Int      @id @default(autoincrement())
+  entityType  String   @map("entity_type") @db.VarChar(50)
+  entityId    Int      @map("entity_id")
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  keywords    String?  @db.Text
+  url         String?  @db.VarChar(500)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([entityType], map: "idx_search_type")
+  @@index([title], map: "idx_search_title")
+  @@map("search_index")
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  companyId   Int      @map("company_id")
+  projectName String   @map("project_name") @db.VarChar(200)
+  description String?  @db.Text
+  status      String   @default("Planning") @db.VarChar(20)
+  startDate   DateTime? @map("start_date")
+  endDate     DateTime? @map("end_date")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId], map: "idx_project_company")
+  @@map("projects")
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  projectId   Int?     @map("project_id")
+  companyId   Int      @map("company_id")
+  taskName    String   @map("task_name") @db.VarChar(200)
+  assignedTo  Int?     @map("assigned_to")
+  status      String   @default("Pending") @db.VarChar(20)
+  priority    String   @default("Medium") @db.VarChar(20)
+  dueDate     DateTime? @map("due_date")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([projectId], map: "idx_task_project")
+  @@map("tasks")
 }

@@ -25,6 +25,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
+    if (!user.passwordHash) {
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
+
     const validPassword = await verifyPassword(password, user.passwordHash);
     if (!validPassword) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
