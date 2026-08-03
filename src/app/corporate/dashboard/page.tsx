@@ -114,10 +114,46 @@ export default function Dashboard() {
               Company Management
             </Link>
             <Link
+              href="/corporate/website-builder"
+              className="border-transparent text-gray-600 hover:text-gray-900 py-3.5 px-1 border-b-2 font-medium text-sm whitespace-nowrap"
+            >
+              Website Builder
+            </Link>
+            <Link
+              href="/corporate/leadership"
+              className="border-transparent text-gray-600 hover:text-gray-900 py-3.5 px-1 border-b-2 font-medium text-sm whitespace-nowrap"
+            >
+              Leadership
+            </Link>
+            <Link
+              href="/corporate/employees"
+              className="border-transparent text-gray-600 hover:text-gray-900 py-3.5 px-1 border-b-2 font-medium text-sm whitespace-nowrap"
+            >
+              Employees
+            </Link>
+            <Link
               href="/corporate/media"
               className="border-transparent text-gray-600 hover:text-gray-900 py-3.5 px-1 border-b-2 font-medium text-sm whitespace-nowrap"
             >
               Media Library
+            </Link>
+            <Link
+              href="/corporate/reports"
+              className="border-transparent text-gray-600 hover:text-gray-900 py-3.5 px-1 border-b-2 font-medium text-sm whitespace-nowrap"
+            >
+              Reports
+            </Link>
+            <Link
+              href="/corporate/analytics"
+              className="border-transparent text-gray-600 hover:text-gray-900 py-3.5 px-1 border-b-2 font-medium text-sm whitespace-nowrap"
+            >
+              Analytics
+            </Link>
+            <Link
+              href="/corporate/security"
+              className="border-transparent text-gray-600 hover:text-gray-900 py-3.5 px-1 border-b-2 font-medium text-sm whitespace-nowrap"
+            >
+              Security
             </Link>
             <Link
               href="/corporate/branding"
