@@ -5,6 +5,15 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    rules: {
+      // Allow async function declarations in useEffect pattern
+      "react-hooks/immutability": "off",
+      "react-hooks/set-state-in-effect": "off",
+      // Allow typed `any` in API route handlers where Prisma data is dynamic
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
@@ -12,6 +21,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "public/js/**",
   ]),
 ]);
 

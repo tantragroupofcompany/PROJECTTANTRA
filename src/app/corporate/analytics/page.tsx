@@ -25,11 +25,6 @@ export default function Analytics() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    checkAuth();
-    fetchCompanies();
-  }, []);
-
   const checkAuth = async () => {
     try {
       const res = await fetch('/api/auth/check');
@@ -47,6 +42,11 @@ export default function Analytics() {
       if (res.ok) setCompanies(data.data || []);
     } catch {}
   };
+
+  useEffect(() => {
+    checkAuth();
+    fetchCompanies();
+  }, []);
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });

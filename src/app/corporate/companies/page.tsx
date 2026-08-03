@@ -344,7 +344,7 @@ export default function CompanyManagement() {
           </div>
           <div className="p-6 overflow-x-auto">
             {companies.length === 0 ? (
-              <p className="text-gray-500 text-sm">No companies registered. Click "Add Company" to create one.</p>
+              <p className="text-gray-500 text-sm">{'No companies registered. Click "Add Company" to create one.'}</p>
             ) : (
               <table className="w-full text-left border-collapse">
                 <thead>
