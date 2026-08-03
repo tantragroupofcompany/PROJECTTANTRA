@@ -1,0 +1,99 @@
+# ============================================================
+# TANTRA GROUP OF INDUSTRIES
+# Apache URL Rewriting Configuration
+# Phase 1 - Foundation System
+# ============================================================
+
+RewriteEngine On
+
+# ============================================================
+# Security Headers
+# ============================================================
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ============================================================
+# Prevent directory listing
+# ============================================================
+Options -Indexes
+
+# ============================================================
+# Protect sensitive files
+# ============================================================
+<FilesMatch "\.(env|sql|md|log|json)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "^(config\.php|seed\.php)$">
+    Require all denied
+</FilesMatch>
+
+# ============================================================
+# Route all requests to index.php
+# ============================================================
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# ============================================================
+# Serve static assets directly
+# ============================================================
+RewriteCond %{REQUEST_URI} ^/public/(css|js|images|uploads)/ [NC]
+RewriteRule .* - [L]
+
+# ============================================================
+# Force HTTPS (uncomment in production)
+# ============================================================
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+# ============================================================
+# Custom error pages
+# ============================================================
+ErrorDocument 403 /index.php
+ErrorDocument 404 /index.php
+ErrorDocument 500 /index.php
+
+# ============================================================
+# PHP Settings
+# ============================================================
+<IfModule mod_php.c>
+    php_flag display_errors Off
+    php_flag log_errors On
+    php_value error_log logs/error.log
+    php_value upload_max_filesize 10M
+    php_value post_max_size 10M
+    php_value max_execution_time 300
+    php_value session.gc_maxlifetime 86400
+    php_value session.cookie_lifetime 0
+    php_value session.use_strict_mode 1
+    php_value session.use_only_cookies 1
+    php_value session.cookie_httponly 1
+    php_value session.cookie_samesite "Lax"
+</IfModule>
+
+# ============================================================
+# Cache Control for Static Assets
+# ============================================================
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+
+# ============================================================
+# Compress static assets
+# ============================================================
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>

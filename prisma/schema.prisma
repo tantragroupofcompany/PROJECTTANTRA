@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  username      String    @unique @db.VarChar(50)
+  email         String    @unique @db.VarChar(255)
+  passwordHash  String    @map("password_hash") @db.VarChar(255)
+  role          String    @default("Employee") @db.VarChar(50)
+  status        String    @default("Active") @db.VarChar(20)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  auditLogs     AuditLog[]
+  sessions      Session[]
+  mediaLibrary  MediaLibrary[]
+
+  @@map("users")
+}
+
+model Company {
+  id                Int            @id @default(autoincrement())
+  companyName       String         @map("company_name") @db.VarChar(200)
+  companyCode       String         @unique @map("company_code") @db.VarChar(20)
+  companyDescription String?       @map("company_description") @db.Text
+  companyLogo       String?        @map("company_logo") @db.VarChar(500)
+  companyBanner     String?        @map("company_banner") @db.VarChar(500)
+  companyFavicon    String?        @map("company_favicon") @db.VarChar(500)
+  websiteUrl        String?        @map("website_url") @db.VarChar(500)
+  status            String         @default("Draft") @db.VarChar(20)
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+  mediaLibrary      MediaLibrary[]
+
+  @@map("companies")
+}
+
+model MediaLibrary {
+  id          Int      @id @default(autoincrement())
+  fileName    String   @map("file_name") @db.VarChar(255)
+  fileUrl     String   @map("file_url") @db.VarChar(500)
+  fileType    String   @map("file_type") @db.VarChar(50)
+  companyId   Int?     @map("company_id")
+  uploadedBy  Int?     @map("uploaded_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  uploader  User?    @relation(fields: [uploadedBy], references: [id], onDelete: SetNull)
+
+  @@index([companyId], map: "idx_media_company")
+  @@index([fileType], map: "idx_media_file_type")
+  @@map("media_library")
+}
+
+model BrandingSettings {
+  id             Int      @id @default(autoincrement())
+  logoUrl        String?  @map("logo_url") @db.VarChar(500)
+  faviconUrl     String?  @map("favicon_url") @db.VarChar(500)
+  bannerUrl      String?  @map("banner_url") @db.VarChar(500)
+  primaryColor   String?  @map("primary_color") @db.VarChar(50)
+  secondaryColor String?  @map("secondary_color") @db.VarChar(50)
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("branding_settings")
+}
+
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  action      String   @db.VarChar(100)
+  module      String   @db.VarChar(50)
+  description String?  @db.Text
+  ipAddress   String?  @map("ip_address") @db.VarChar(45)
+  userAgent   String?  @map("user_agent") @db.VarChar(500)
+  timestamp   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_audit_user")
+  @@index([module], map: "idx_audit_module")
+  @@index([timestamp], map: "idx_audit_timestamp")
+  @@map("audit_logs")
+}
+
+model Session {
+  id           String   @id @db.VarChar(128)
+  userId       Int      @map("user_id")
+  ipAddress    String   @map("ip_address") @db.VarChar(45)
+  userAgent    String?  @map("user_agent") @db.VarChar(500)
+  payload      String?  @db.Text
+  lastActivity DateTime @default(now()) @map("last_activity")
+  createdAt    DateTime @default(now()) @map("created_at")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_sessions_user")
+  @@index([lastActivity], map: "idx_sessions_last_activity")
+  @@map("sessions")
+}
