@@ -4,7 +4,7 @@
 
 - Node.js 20+ (v24 recommended)
 - npm or pnpm
-- PostgreSQL (or use Prisma Postgres local server)
+- SQLite (for local development)
 
 ## Installation
 
@@ -12,24 +12,20 @@
 # 1. Install dependencies
 npm install
 
-# 2. Start Prisma Postgres local server (in a separate terminal)
-npx prisma dev
+# 2. Configure environment variables
+# .env is already configured for SQLite:
+# DATABASE_URL="file:./prisma/dev.db"
 
-# 3. Configure environment variables
-# Copy the DATABASE_URL from the prisma dev output into .env
-# Example:
-# DATABASE_URL="postgres://postgres:postgres@localhost:51214/template1?sslmode=disable&connection_limit=10&connect_timeout=0&max_idle_connection_lifetime=0&pool_timeout=0&socket_timeout=0"
-
-# 4. Run database migration
+# 3. Run database migration
 npx prisma migrate dev --name init
 
-# 5. Generate Prisma client
+# 4. Generate Prisma client
 npx prisma generate
 
-# 6. Seed the database (creates founder user + leadership profiles)
-npx tsx prisma/seed.ts
+# 5. Seed the database (creates founder user + leadership profiles)
+npx prisma db seed
 
-# 7. Start the development server
+# 6. Start the development server
 npm run dev
 ```
 
@@ -78,7 +74,9 @@ Open http://localhost:3000
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | Required |
+| `DATABASE_URL` | SQLite database path for local dev | `file:./prisma/dev.db` |
+| `NEXTAUTH_URL` | Application URL | `http://localhost:3000` |
+| `NEXTAUTH_SECRET` | Session secret | Required for production |
 | `SMTP_HOST` | SMTP server for OTP emails | smtp.gmail.com |
 | `SMTP_PORT` | SMTP port | 587 |
 | `SMTP_USER` | SMTP username | - |
@@ -115,13 +113,14 @@ Open http://localhost:3000
 
 ### Prisma Client Initialization Error
 If you see "PrismaClient was instantiated without any options", ensure:
-1. `@prisma/adapter-pg` is installed
+1. `@prisma/adapter-libsql` is installed
 2. `DATABASE_URL` is set in `.env`
 3. Run `npx prisma generate`
 
-### Database Connection Error (P1001)
-1. Ensure Prisma Postgres is running: `npx prisma dev`
-2. Verify the port in `DATABASE_URL` matches the prisma dev output
+### Database Connection Error
+1. Ensure `.env` contains `DATABASE_URL="file:./prisma/dev.db"`
+2. Run `npx prisma migrate dev --name init`
+3. Verify `prisma/dev.db` exists
 
 ### OTP Email Not Received
 1. Check the terminal console — in dev mode, OTPs are logged

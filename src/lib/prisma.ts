@@ -1,13 +1,13 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaLibSql } from '@prisma/adapter-libsql';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
 function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:51214/template1?sslmode=disable';
-  const adapter = new PrismaPg({ connectionString });
+  const connectionString = process.env.DATABASE_URL || 'file:./prisma/dev.db';
+  const adapter = new PrismaLibSql({ url: connectionString });
   return new PrismaClient({ adapter });
 }
 

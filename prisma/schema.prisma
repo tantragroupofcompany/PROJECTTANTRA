@@ -3,16 +3,16 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
 }
 
 model User {
   id            Int       @id @default(autoincrement())
-  username      String    @unique @db.VarChar(50)
-  email         String    @unique @db.VarChar(255)
-  passwordHash  String?   @map("password_hash") @db.VarChar(255)
-  role          String    @default("Employee") @db.VarChar(50)
-  status        String    @default("Active") @db.VarChar(20)
+  username      String    @unique
+  email         String    @unique
+  passwordHash  String?   @map("password_hash")
+  role          String    @default("Employee")
+  status        String    @default("Active")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
   auditLogs     AuditLog[]
@@ -24,14 +24,14 @@ model User {
 
 model Company {
   id                Int            @id @default(autoincrement())
-  companyName       String         @map("company_name") @db.VarChar(200)
-  companyCode       String         @unique @map("company_code") @db.VarChar(20)
-  companyDescription String?       @map("company_description") @db.Text
-  companyLogo       String?        @map("company_logo") @db.VarChar(500)
-  companyBanner     String?        @map("company_banner") @db.VarChar(500)
-  companyFavicon    String?        @map("company_favicon") @db.VarChar(500)
-  websiteUrl        String?        @map("website_url") @db.VarChar(500)
-  status            String         @default("Draft") @db.VarChar(20)
+  companyName       String         @map("company_name")
+  companyCode       String         @unique @map("company_code")
+  companyDescription String?       @map("company_description")
+  companyLogo       String?        @map("company_logo")
+  companyBanner     String?        @map("company_banner")
+  companyFavicon    String?        @map("company_favicon")
+  websiteUrl        String?        @map("website_url")
+  status            String         @default("Draft")
   createdAt         DateTime       @default(now()) @map("created_at")
   updatedAt         DateTime       @updatedAt @map("updated_at")
   mediaLibrary      MediaLibrary[]
@@ -47,11 +47,11 @@ model Company {
 
 model LeadershipProfile {
   id          Int      @id @default(autoincrement())
-  name        String   @db.VarChar(100)
-  designation String   @db.VarChar(100)
-  biography   String?  @db.Text
-  photoUrl    String?  @map("photo_url") @db.VarChar(500)
-  status      String   @default("Active") @db.VarChar(20)
+  name        String
+  designation String
+  biography   String?
+  photoUrl    String?  @map("photo_url")
+  status      String   @default("Active")
   displayOrder Int     @default(0) @map("display_order")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -61,8 +61,8 @@ model LeadershipProfile {
 
 model OtpVerification {
   id        Int      @id @default(autoincrement())
-  email     String   @db.VarChar(255)
-  otp       String   @db.VarChar(10)
+  email     String
+  otp       String
   expiresAt DateTime @map("expires_at")
   used      Boolean  @default(false)
   createdAt DateTime @default(now()) @map("created_at")
@@ -73,9 +73,9 @@ model OtpVerification {
 
 model MediaLibrary {
   id          Int      @id @default(autoincrement())
-  fileName    String   @map("file_name") @db.VarChar(255)
-  fileUrl     String   @map("file_url") @db.VarChar(500)
-  fileType    String   @map("file_type") @db.VarChar(50)
+  fileName    String   @map("file_name")
+  fileUrl     String   @map("file_url")
+  fileType    String   @map("file_type")
   companyId   Int?     @map("company_id")
   uploadedBy  Int?     @map("uploaded_by")
   createdAt   DateTime @default(now()) @map("created_at")
@@ -90,11 +90,11 @@ model MediaLibrary {
 
 model BrandingSettings {
   id             Int      @id @default(autoincrement())
-  logoUrl        String?  @map("logo_url") @db.VarChar(500)
-  faviconUrl     String?  @map("favicon_url") @db.VarChar(500)
-  bannerUrl      String?  @map("banner_url") @db.VarChar(500)
-  primaryColor   String?  @map("primary_color") @db.VarChar(50)
-  secondaryColor String?  @map("secondary_color") @db.VarChar(50)
+  logoUrl        String?  @map("logo_url")
+  faviconUrl     String?  @map("favicon_url")
+  bannerUrl      String?  @map("banner_url")
+  primaryColor   String?  @map("primary_color")
+  secondaryColor String?  @map("secondary_color")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   @@map("branding_settings")
@@ -103,11 +103,11 @@ model BrandingSettings {
 model AuditLog {
   id          Int      @id @default(autoincrement())
   userId      Int      @map("user_id")
-  action      String   @db.VarChar(100)
-  module      String   @db.VarChar(50)
-  description String?  @db.Text
-  ipAddress   String?  @map("ip_address") @db.VarChar(45)
-  userAgent   String?  @map("user_agent") @db.VarChar(500)
+  action      String
+  module      String
+  description String?
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
   timestamp   DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -118,11 +118,11 @@ model AuditLog {
 }
 
 model Session {
-  id           String   @id @db.VarChar(128)
+  id           String   @id
   userId       Int      @map("user_id")
-  ipAddress    String   @map("ip_address") @db.VarChar(45)
-  userAgent    String?  @map("user_agent") @db.VarChar(500)
-  payload      String?  @db.Text
+  ipAddress    String   @map("ip_address")
+  userAgent    String?  @map("user_agent")
+  payload      String?
   lastActivity DateTime @default(now()) @map("last_activity")
   createdAt    DateTime @default(now()) @map("created_at")
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -135,12 +135,12 @@ model Session {
 model Website {
   id           Int      @id @default(autoincrement())
   companyId    Int      @map("company_id")
-  template     String   @default("corporate") @db.VarChar(50)
-  status       String   @default("Draft") @db.VarChar(20)
+  template     String   @default("corporate")
+  status       String   @default("Draft")
   themeSettings Json?   @map("theme_settings")
   navigation   Json?
-  domain       String?  @db.VarChar(255)
-  subdomain    String?  @db.VarChar(100)
+  domain       String?
+  subdomain    String?
   analytics    Json?
   publishedAt  DateTime? @map("published_at")
   archivedAt   DateTime? @map("archived_at")
@@ -159,12 +159,12 @@ model Page {
   id           Int      @id @default(autoincrement())
   websiteId    Int      @map("website_id")
   companyId    Int      @map("company_id")
-  pageName     String   @map("page_name") @db.VarChar(100)
-  pageSlug     String   @map("page_slug") @db.VarChar(100)
-  pageContent  String?  @map("page_content") @db.Text
-  pageStatus   String   @default("Draft") @map("page_status") @db.VarChar(20)
-  metaTitle    String?  @map("meta_title") @db.VarChar(255)
-  metaDescription String? @map("meta_description") @db.Text
+  pageName     String   @map("page_name")
+  pageSlug     String   @map("page_slug")
+  pageContent  String?  @map("page_content")
+  pageStatus   String   @default("Draft") @map("page_status")
+  metaTitle    String?  @map("meta_title")
+  metaDescription String? @map("meta_description")
   sortOrder    Int      @default(0) @map("sort_order")
   isRequired   Boolean  @default(false) @map("is_required")
   createdAt    DateTime @default(now()) @map("created_at")
@@ -180,11 +180,11 @@ model Page {
 model Department {
   id          Int      @id @default(autoincrement())
   companyId   Int      @map("company_id")
-  departmentName String @map("department_name") @db.VarChar(100)
-  departmentCode String @map("department_code") @db.VarChar(20)
+  departmentName String @map("department_name")
+  departmentCode String @map("department_code")
   description String?
   headId      Int?
-  status      String   @default("Active") @db.VarChar(20)
+  status      String   @default("Active")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
@@ -197,18 +197,18 @@ model Department {
 
 model Employee {
   id           Int      @id @default(autoincrement())
-  employeeId   String   @unique @map("employee_id") @db.VarChar(50)
+  employeeId   String   @unique @map("employee_id")
   companyId    Int      @map("company_id")
   departmentId Int?     @map("department_id")
-  fullName     String   @map("full_name") @db.VarChar(100)
-  email        String   @db.VarChar(255)
-  phone        String?  @db.VarChar(20)
-  designation  String   @db.VarChar(100)
+  fullName     String   @map("full_name")
+  email        String
+  phone        String?
+  designation  String
   managerId    Int?     @map("manager_id")
-  role         String   @default("Employee") @db.VarChar(50)
-  status       String   @default("Active") @db.VarChar(20)
+  role         String   @default("Employee")
+  status       String   @default("Active")
   joiningDate  DateTime? @map("joining_date")
-  avatar       String?  @db.VarChar(500)
+  avatar       String?
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -224,11 +224,11 @@ model Approval {
   id           Int      @id @default(autoincrement())
   companyId    Int?     @map("company_id")
   employeeId   Int?     @map("employee_id")
-  approvalType String   @map("approval_type") @db.VarChar(50)
-  status       String   @default("Pending") @db.VarChar(20)
+  approvalType String   @map("approval_type")
+  status       String   @default("Pending")
   requestedBy  Int      @map("requested_by")
   reviewedBy   Int?     @map("reviewed_by")
-  reviewNotes  String?  @map("review_notes") @db.Text
+  reviewNotes  String?  @map("review_notes")
   reviewedAt   DateTime? @map("reviewed_at")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
@@ -242,10 +242,10 @@ model Notification {
   id        Int      @id @default(autoincrement())
   userId    Int?     @map("user_id")
   companyId Int?     @map("company_id")
-  type      String   @db.VarChar(50)
-  title     String   @db.VarChar(255)
-  message   String   @db.Text
-  channel   String   @default("Dashboard") @db.VarChar(50)
+  type      String
+  title     String
+  message   String
+  channel   String   @default("Dashboard")
   isRead    Boolean  @default(false) @map("is_read")
   readAt    DateTime? @map("read_at")
   createdAt DateTime @default(now()) @map("created_at")
@@ -258,12 +258,12 @@ model Notification {
 model Report {
   id           Int      @id @default(autoincrement())
   companyId    Int?     @map("company_id")
-  reportType   String   @map("report_type") @db.VarChar(50)
-  reportName   String   @map("report_name") @db.VarChar(255)
-  reportFormat String   @default("PDF") @map("report_format") @db.VarChar(20)
+  reportType   String   @map("report_type")
+  reportName   String   @map("report_name")
+  reportFormat String   @default("PDF") @map("report_format")
   filters      Json?
   generatedBy  Int      @map("generated_by")
-  filePath     String?  @map("file_path") @db.VarChar(500)
+  filePath     String?  @map("file_path")
   createdAt    DateTime @default(now()) @map("created_at")
 
   @@index([companyId], map: "idx_report_company")
@@ -273,12 +273,12 @@ model Report {
 model Asset {
   id           Int      @id @default(autoincrement())
   companyId    Int      @map("company_id")
-  assetName    String   @map("asset_name") @db.VarChar(200)
-  assetType    String   @map("asset_type") @db.VarChar(50)
-  serialNumber String?  @map("serial_number") @db.VarChar(100)
-  value        Decimal  @default(0) @db.Decimal(15,2)
+  assetName    String   @map("asset_name")
+  assetType    String   @map("asset_type")
+  serialNumber String?  @map("serial_number")
+  value        Float    @default(0)
   assignedTo   Int?     @map("assigned_to")
-  status       String   @default("Available") @db.VarChar(20)
+  status       String   @default("Available")
   purchaseDate DateTime? @map("purchase_date")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
@@ -292,10 +292,10 @@ model Asset {
 model Document {
   id           Int      @id @default(autoincrement())
   companyId    Int?     @map("company_id")
-  documentName String   @map("document_name") @db.VarChar(255)
-  documentType String   @map("document_type") @db.VarChar(50)
-  fileUrl      String?  @map("file_url") @db.VarChar(500)
-  description  String?  @db.Text
+  documentName String   @map("document_name")
+  documentType String   @map("document_type")
+  fileUrl      String?  @map("file_url")
+  description  String?
   expiryDate   DateTime? @map("expiry_date")
   createdBy    Int      @map("created_by")
   createdAt    DateTime @default(now()) @map("created_at")
@@ -308,12 +308,12 @@ model Document {
 model ComplianceRecord {
   id                Int      @id @default(autoincrement())
   companyId         Int      @map("company_id")
-  complianceType    String   @map("compliance_type") @db.VarChar(50)
-  title             String   @db.VarChar(255)
-  issuingAuthority  String?  @map("issuing_authority") @db.VarChar(255)
+  complianceType    String   @map("compliance_type")
+  title             String
+  issuingAuthority  String?  @map("issuing_authority")
   issueDate         DateTime? @map("issue_date")
   expiryDate        DateTime @map("expiry_date")
-  status            String   @default("Active") @db.VarChar(20)
+  status            String   @default("Active")
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")
 
@@ -326,10 +326,10 @@ model ComplianceRecord {
 model AiInsight {
   id             Int      @id @default(autoincrement())
   companyId      Int?     @map("company_id")
-  insightType    String   @map("insight_type") @db.VarChar(50)
-  title          String   @db.VarChar(255)
-  description    String   @db.Text
-  confidenceScore Decimal @default(0) @map("confidence_score") @db.Decimal(5,2)
+  insightType    String   @map("insight_type")
+  title          String
+  description    String
+  confidenceScore Float   @default(0) @map("confidence_score")
   isRead         Boolean  @default(false) @map("is_read")
   createdAt      DateTime @default(now()) @map("created_at")
 
@@ -339,12 +339,12 @@ model AiInsight {
 
 model SearchIndex {
   id          Int      @id @default(autoincrement())
-  entityType  String   @map("entity_type") @db.VarChar(50)
+  entityType  String   @map("entity_type")
   entityId    Int      @map("entity_id")
-  title       String   @db.VarChar(255)
-  description String?  @db.Text
-  keywords    String?  @db.Text
-  url         String?  @db.VarChar(500)
+  title       String
+  description String?
+  keywords    String?
+  url         String?
   createdAt   DateTime @default(now()) @map("created_at")
 
   @@index([entityType], map: "idx_search_type")
@@ -355,9 +355,9 @@ model SearchIndex {
 model Project {
   id          Int      @id @default(autoincrement())
   companyId   Int      @map("company_id")
-  projectName String   @map("project_name") @db.VarChar(200)
-  description String?  @db.Text
-  status      String   @default("Planning") @db.VarChar(20)
+  projectName String   @map("project_name")
+  description String?
+  status      String   @default("Planning")
   startDate   DateTime? @map("start_date")
   endDate     DateTime? @map("end_date")
   createdAt   DateTime @default(now()) @map("created_at")
@@ -373,10 +373,10 @@ model Task {
   id          Int      @id @default(autoincrement())
   projectId   Int?     @map("project_id")
   companyId   Int      @map("company_id")
-  taskName    String   @map("task_name") @db.VarChar(200)
+  taskName    String   @map("task_name")
   assignedTo  Int?     @map("assigned_to")
-  status      String   @default("Pending") @db.VarChar(20)
-  priority    String   @default("Medium") @db.VarChar(20)
+  status      String   @default("Pending")
+  priority    String   @default("Medium")
   dueDate     DateTime? @map("due_date")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")

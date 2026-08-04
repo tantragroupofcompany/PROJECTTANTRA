@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaLibSql } from '@prisma/adapter-libsql';
 import bcrypt from 'bcryptjs';
 
-const connectionString = process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:51214/template1?sslmode=disable';
-const adapter = new PrismaPg({ connectionString });
+const connectionString = process.env.DATABASE_URL || 'file:./prisma/dev.db';
+const adapter = new PrismaLibSql({ url: connectionString });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
